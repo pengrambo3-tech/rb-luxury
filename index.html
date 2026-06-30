@@ -48,6 +48,7 @@
     .tag { color:var(--gold); font-size:10px; font-weight:800; text-transform:uppercase; }
     .meta h2 { margin:7px 0 5px; font:20px Georgia,serif; }
     .meta p { margin:0; color:var(--muted); font-size:12px; line-height:1.45; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card-price { display:block; margin-top:10px; font-size:13px; font-weight:800; color:var(--ink); }
     .pagination { display:flex; align-items:center; justify-content:center; gap:8px; padding:24px; border-bottom:1px solid var(--line); }
     .pagination button { min-width:40px; height:40px; border:1px solid var(--line); background:white; border-radius:4px; }
     .pagination button.active { color:white; background:var(--ink); border-color:var(--ink); }
@@ -81,8 +82,24 @@
     .details li { display:flex; justify-content:space-between; gap:20px; padding:12px 0; border-bottom:1px solid var(--line); font-size:13px; }
     .details span { color:var(--muted); }
     .inquire { display:block; text-align:center; text-decoration:none; color:white; background:var(--green); padding:13px; border-radius:4px; font-weight:700; }
+    .price-line { margin:20px 0 6px; font:30px Georgia,serif; }
+    .price-note { min-height:20px; margin:0 0 16px!important; font-size:12px; }
+    .payment-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .pay-action { display:flex; align-items:center; justify-content:center; min-height:44px; border:1px solid var(--ink); border-radius:4px; background:white; color:var(--ink); text-decoration:none; font-weight:800; }
+    .pay-action.primary { border-color:#0878c9; background:#0878c9; color:white; }
+    .pay-action:disabled,.pay-action[aria-disabled="true"] { opacity:.4; cursor:not-allowed; pointer-events:none; }
+    .crypto-dialog { width:min(540px,calc(100% - 30px)); }
+    .crypto-panel { padding:36px; text-align:center; position:relative; }
+    .crypto-panel h2 { margin:0 0 8px; font:32px Georgia,serif; }
+    .crypto-panel > p { color:var(--muted); line-height:1.5; }
+    .crypto-amount { margin:20px 0 4px; font:34px Georgia,serif; }
+    .crypto-network { display:inline-block; margin-bottom:18px; padding:6px 9px; border-radius:4px; background:#e9f4ef; color:var(--green); font-size:11px; font-weight:800; }
+    .crypto-qr { width:220px; height:220px; margin:0 auto 16px; border:1px solid var(--line); }
+    .wallet-address { display:block; overflow-wrap:anywhere; padding:12px; background:var(--paper); border:1px solid var(--line); font:12px monospace; }
+    .copy-wallet { width:100%; margin:10px 0 12px; min-height:42px; border:1px solid var(--line); border-radius:4px; background:white; font-weight:700; }
+    .crypto-warning { padding:12px; background:#fff5dd; color:#775714!important; font-size:12px; }
     @media (max-width:850px) { header { grid-template-columns:1fr auto; padding:0 18px; } nav { position:fixed; bottom:0; left:0; right:0; background:white; height:58px; border-top:1px solid var(--line); z-index:30; } nav button { flex:1; } .contact { display:none; } .intro { grid-template-columns:1fr; padding:28px 18px; } .stats { justify-content:space-between; } .toolbar { align-items:stretch; flex-direction:column; padding:14px 18px; } .filters { overflow:auto; } .catalog-tools { justify-content:space-between; } .search { min-width:0; width:100%; } .catalog { grid-template-columns:repeat(2,1fr); } .product:nth-child(odd) { border-right:1px solid var(--line); } .product:nth-child(even) { border-right:0; } .journal { padding:40px 18px 80px; } .journal-head { display:block; } .journal-head p { margin-top:12px; } .stories { grid-template-columns:1fr; } .contact-band { grid-template-columns:1fr; gap:28px; padding:42px 18px 82px; } .modal { grid-template-columns:1fr; } .modal img { min-height:0; aspect-ratio:1/1; } .modal-copy { padding:28px 22px; } footer { padding-bottom:78px; } }
-    @media (max-width:480px) { .brand span { display:none; } .brand strong { font-size:16px; } .catalog { grid-template-columns:1fr; } .product,.product:nth-child(odd) { border-right:0; } .filters { min-width:max-content; } .stats { gap:12px; } }
+    @media (max-width:480px) { .brand span { display:none; } .brand strong { font-size:16px; } .catalog { grid-template-columns:1fr; } .product,.product:nth-child(odd) { border-right:0; } .filters { min-width:max-content; } .stats { gap:12px; } .payment-actions { grid-template-columns:1fr; } .crypto-panel { padding:28px 18px; } }
   </style>
 </head>
 <body>
@@ -126,20 +143,28 @@
     <footer><span>© 2026 RB LUXURY. All rights reserved.</span><span>Dongguan, Guangdong, China · mmmay160@gmail.com</span></footer>
   </div>
 
-    <dialog id="productDialog"><div class="modal"><img id="modalImage" alt=""><div class="modal-copy"><button class="close" aria-label="Close">×</button><span class="tag" id="modalTag"></span><h2 id="modalTitle"></h2><p id="modalDescription"></p><ul class="details"><li><span>Category</span><b id="modalCategory"></b></li><li><span>Availability</span><b>On request</b></li><li><span>Service</span><b>International inquiry</b></li></ul><a class="inquire" href="https://wa.me/8613430812383" target="_blank" rel="noreferrer">Inquire on WhatsApp</a></div></div></dialog>
+    <dialog id="productDialog"><div class="modal"><img id="modalImage" alt=""><div class="modal-copy"><button class="close" data-close="productDialog" aria-label="Close">×</button><span class="tag" id="modalTag"></span><h2 id="modalTitle"></h2><p id="modalDescription"></p><div class="price-line" id="modalPrice">Price on request</div><p class="price-note" id="modalPriceNote">Contact us to confirm the current price and availability.</p><div class="payment-actions"><a class="pay-action primary" id="paypalPay" target="_blank" rel="noreferrer" aria-disabled="true">Pay with PayPal</a><button class="pay-action" id="usdtPay" type="button" disabled>Pay with USDT</button></div><ul class="details"><li><span>Product code</span><b id="modalCode"></b></li><li><span>Category</span><b id="modalCategory"></b></li><li><span>Availability</span><b>Confirm before payment</b></li></ul><a class="inquire" id="whatsappInquiry" href="https://wa.me/8613430812383" target="_blank" rel="noreferrer">Inquire on WhatsApp</a></div></div></dialog>
+
+    <dialog class="crypto-dialog" id="usdtDialog"><div class="crypto-panel"><button class="close" data-close="usdtDialog" aria-label="Close">×</button><h2>Pay with USDT</h2><p id="cryptoProduct"></p><div class="crypto-amount" id="cryptoAmount"></div><span class="crypto-network">TRON NETWORK · TRC20</span><img class="crypto-qr" src="assets/brand/usdt-trc20-qr.png" alt="USDT TRC20 wallet QR code"><code class="wallet-address" id="walletAddress">TKS64KEw7CiJXS9pnnoMwUeALnLoSEuMFc</code><button class="copy-wallet" id="copyWallet" type="button">Copy wallet address</button><p class="crypto-warning">Send USDT only through the TRON (TRC20) network. Sending another token or using another network may permanently lose the funds.</p><a class="inquire" id="sendTransaction" target="_blank" rel="noreferrer">Send transaction hash on WhatsApp</a></div></dialog>
 
   <script src="products-data.js"></script>
+  <script src="prices-data.js"></script>
   <script>
     const products = window.RB_PRODUCTS || [];
+    const prices = window.RB_PRICES || {};
+    const usdtAddress = 'TKS64KEw7CiJXS9pnnoMwUeALnLoSEuMFc';
     const catalog = document.getElementById('catalog');
     const count = document.getElementById('count');
     const pagination = document.getElementById('pagination');
     const search = document.getElementById('search');
     const dialog = document.getElementById('productDialog');
+    const usdtDialog = document.getElementById('usdtDialog');
     const pageSize = 24;
     let currentFilter = 'all';
     let currentPage = 1;
     const escapeHtml = value => String(value).replace(/[&<>"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]));
+    const productPrice = product => { const value = Number(prices[String(product.code)]); return Number.isFinite(value) && value > 0 ? value : null; };
+    const formatPrice = value => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value);
 
     function filteredProducts() {
       const term = search.value.trim().toLowerCase();
@@ -152,7 +177,7 @@
       currentPage = Math.min(currentPage, pages);
       const visible = list.slice((currentPage - 1) * pageSize, currentPage * pageSize);
       count.textContent = `${list.length} ${list.length === 1 ? 'piece' : 'pieces'}`;
-      catalog.innerHTML = visible.map(p=>`<article class="product"><button data-index="${products.indexOf(p)}" aria-label="View ${escapeHtml(p.name)}"><div class="media"><img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"></div><div class="meta"><span class="tag">${p.type === 'watch' ? 'Timepieces' : 'Handbags'} · ${escapeHtml(p.code)}</span><h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.description)}</p></div></button></article>`).join('');
+      catalog.innerHTML = visible.map(p=>`<article class="product"><button data-index="${products.indexOf(p)}" aria-label="View ${escapeHtml(p.name)}"><div class="media"><img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"></div><div class="meta"><span class="tag">${p.type === 'watch' ? 'Timepieces' : 'Handbags'} · ${escapeHtml(p.code)}</span><h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.description)}</p><span class="card-price">${productPrice(p) ? formatPrice(productPrice(p)) : 'Price on request'}</span></div></button></article>`).join('');
       const numbers = Array.from({length: pages},(_,i)=>i+1).filter(n=>n===1||n===pages||Math.abs(n-currentPage)<=1);
       pagination.innerHTML = `<button data-page="${currentPage-1}" ${currentPage===1?'disabled':''} aria-label="Previous page">‹</button>${numbers.map((n,i)=>`${i&&n-numbers[i-1]>1?'<span>…</span>':''}<button class="${n===currentPage?'active':''}" data-page="${n}">${n}</button>`).join('')}<button data-page="${currentPage+1}" ${currentPage===pages?'disabled':''} aria-label="Next page">›</button>`;
     }
@@ -165,17 +190,58 @@
       document.getElementById('catalog').scrollIntoView({block:'start'});
     }
 
+    function openProduct(product) {
+      const price = productPrice(product);
+      const inquiryText = encodeURIComponent(`Hello, I am interested in product ${product.code}: ${product.name}. Please confirm price and availability.`);
+      document.getElementById('modalImage').src = product.image;
+      document.getElementById('modalImage').alt = product.name;
+      document.getElementById('modalTag').textContent = product.type === 'watch' ? 'Selected Timepiece' : 'Selected Handbag';
+      document.getElementById('modalTitle').textContent = product.name;
+      document.getElementById('modalDescription').textContent = product.description;
+      document.getElementById('modalCode').textContent = product.code;
+      document.getElementById('modalCategory').textContent = product.type === 'watch' ? 'Watch' : 'Handbag';
+      document.getElementById('whatsappInquiry').href = `https://wa.me/8613430812383?text=${inquiryText}`;
+      document.getElementById('modalPrice').textContent = price ? formatPrice(price) : 'Price on request';
+      document.getElementById('modalPriceNote').textContent = price ? 'Confirm availability with us before completing payment.' : 'Contact us to confirm the current price and availability.';
+      const paypal = document.getElementById('paypalPay');
+      const usdt = document.getElementById('usdtPay');
+      if (price) {
+        paypal.href = `https://www.paypal.me/Rambopeng/${price.toFixed(2)}USD`;
+        paypal.setAttribute('aria-disabled','false');
+        usdt.disabled = false;
+        usdt.onclick = () => openUsdt(product,price);
+      } else {
+        paypal.removeAttribute('href');
+        paypal.setAttribute('aria-disabled','true');
+        usdt.disabled = true;
+        usdt.onclick = null;
+      }
+      dialog.showModal();
+    }
+
+    function openUsdt(product,price) {
+      document.getElementById('cryptoProduct').textContent = `${product.name} · ${product.code}`;
+      document.getElementById('cryptoAmount').textContent = `${price.toFixed(2)} USDT`;
+      const confirmationText = encodeURIComponent(`Hello, I paid ${price.toFixed(2)} USDT via TRC20 for product ${product.code}. My transaction hash is: `);
+      document.getElementById('sendTransaction').href = `https://wa.me/8613430812383?text=${confirmationText}`;
+      dialog.close();
+      usdtDialog.showModal();
+    }
+
     document.addEventListener('click',e=>{
       const filterBtn=e.target.closest('[data-filter]');
       if(filterBtn) setFilter(filterBtn.dataset.filter);
       const productBtn=e.target.closest('.product button');
-      if(productBtn){ const p=products[Number(productBtn.dataset.index)]; document.getElementById('modalImage').src=p.image; document.getElementById('modalImage').alt=p.name; document.getElementById('modalTag').textContent=p.type==='watch'?'Selected Timepiece':'Selected Handbag'; document.getElementById('modalTitle').textContent=p.name; document.getElementById('modalDescription').textContent=p.description; document.getElementById('modalCategory').textContent=p.type==='watch'?'Watch':'Handbag'; dialog.showModal(); }
+      if(productBtn) openProduct(products[Number(productBtn.dataset.index)]);
       const pageBtn=e.target.closest('[data-page]');
       if(pageBtn && !pageBtn.disabled){ currentPage=Number(pageBtn.dataset.page); render(); document.getElementById('catalog').scrollIntoView({block:'start'}); }
-      if(e.target.classList.contains('close')) dialog.close();
+      const closeButton=e.target.closest('[data-close]');
+      if(closeButton) document.getElementById(closeButton.dataset.close).close();
     });
+    document.getElementById('copyWallet').addEventListener('click',async()=>{ const button=document.getElementById('copyWallet'); try { await navigator.clipboard.writeText(usdtAddress); button.textContent='Address copied'; } catch { button.textContent='Copy failed — select the address above'; } setTimeout(()=>button.textContent='Copy wallet address',2200); });
     search.addEventListener('input',()=>{ currentPage=1; render(); });
     dialog.addEventListener('click',e=>{ if(e.target===dialog) dialog.close(); });
+    usdtDialog.addEventListener('click',e=>{ if(e.target===usdtDialog) usdtDialog.close(); });
     document.getElementById('watchTotal').textContent = products.filter(p=>p.type==='watch').length.toLocaleString('en-US');
     document.getElementById('bagTotal').textContent = products.filter(p=>p.type==='bag').length.toLocaleString('en-US');
     document.getElementById('catalogTotal').textContent = products.length.toLocaleString('en-US');
