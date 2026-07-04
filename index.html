@@ -116,7 +116,7 @@
         <div class="stats"><div class="stat"><b id="watchTotal">0</b><span>Watches</span></div><div class="stat"><b id="bagTotal">0</b><span>Handbags</span></div><div class="stat"><b id="catalogTotal">0</b><span>All pieces</span></div></div>
       </section>
 
-      <section class="toolbar" aria-label="Catalog controls"><div class="filters"><button class="filter active" data-filter="all">All pieces</button><button class="filter" data-filter="watch">Watches</button><button class="filter" data-filter="bag">Handbags</button></div><div class="catalog-tools"><input class="search" id="search" type="search" placeholder="Search title or product code" aria-label="Search products"><span class="result-count" id="count">196 pieces</span></div></section>
+      <section class="toolbar" aria-label="Catalog controls"><div class="filters"><button class="filter active" data-filter="all">All pieces</button><button class="filter" data-filter="gold">Gold Watches</button><button class="filter" data-filter="watch">Watches</button><button class="filter" data-filter="bag">Handbags</button></div><div class="catalog-tools"><input class="search" id="search" type="search" placeholder="Search title or product code" aria-label="Search products"><span class="result-count" id="count">196 pieces</span></div></section>
       <section class="catalog" id="catalog" aria-live="polite"></section>
       <div class="pagination" id="pagination" aria-label="Product pages"></div>
 
@@ -168,7 +168,7 @@
 
     function filteredProducts() {
       const term = search.value.trim().toLowerCase();
-      return products.filter(p => (currentFilter === 'all' || p.type === currentFilter) && (!term || `${p.name} ${p.code}`.toLowerCase().includes(term)));
+      return products.filter(p => (currentFilter === 'all' || p.type === currentFilter || (currentFilter === 'gold' && p.collection === 'gold-rolex')) && (!term || `${p.name} ${p.code}`.toLowerCase().includes(term)));
     }
 
     function render() {
@@ -177,7 +177,7 @@
       currentPage = Math.min(currentPage, pages);
       const visible = list.slice((currentPage - 1) * pageSize, currentPage * pageSize);
       count.textContent = `${list.length} ${list.length === 1 ? 'piece' : 'pieces'}`;
-      catalog.innerHTML = visible.map(p=>`<article class="product"><button data-index="${products.indexOf(p)}" aria-label="View ${escapeHtml(p.name)}"><div class="media"><img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"></div><div class="meta"><span class="tag">${p.type === 'watch' ? 'Timepieces' : 'Handbags'} · ${escapeHtml(p.code)}</span><h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.description)}</p><span class="card-price">${productPrice(p) ? formatPrice(productPrice(p)) : 'Price on request'}</span></div></button></article>`).join('');
+      catalog.innerHTML = visible.map(p=>`<article class="product"><button data-index="${products.indexOf(p)}" aria-label="View ${escapeHtml(p.name)}"><div class="media"><img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" referrerpolicy="no-referrer"></div><div class="meta"><span class="tag">${p.collection === 'gold-rolex' ? 'Gold Watches' : p.type === 'watch' ? 'Timepieces' : 'Handbags'} · ${escapeHtml(p.code)}</span><h2>${escapeHtml(p.name)}</h2><p>${escapeHtml(p.description)}</p><span class="card-price">${productPrice(p) ? formatPrice(productPrice(p)) : 'Price on request'}</span></div></button></article>`).join('');
       const numbers = Array.from({length: pages},(_,i)=>i+1).filter(n=>n===1||n===pages||Math.abs(n-currentPage)<=1);
       pagination.innerHTML = `<button data-page="${currentPage-1}" ${currentPage===1?'disabled':''} aria-label="Previous page">‹</button>${numbers.map((n,i)=>`${i&&n-numbers[i-1]>1?'<span>…</span>':''}<button class="${n===currentPage?'active':''}" data-page="${n}">${n}</button>`).join('')}<button data-page="${currentPage+1}" ${currentPage===pages?'disabled':''} aria-label="Next page">›</button>`;
     }
